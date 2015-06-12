@@ -10,7 +10,7 @@ RUN mkdir -p /opt/sei-bin/
 RUN mkdir -p /data/hbase
 RUN mkdir -p /root/.profile.d
 WORKDIR /opt
-ADD http://www.apache.org/dist/hbase/hbase-0.94.26/hbase-0.94.26.tar.gz /opt/downloads/
+ADD http://www.apache.org/dist/hbase/hbase-0.94.27/hbase-0.94.27.tar.gz /opt/downloads/
 RUN tar xzvf /opt/downloads/hbase-*gz && rm /opt/downloads/hbase-*gz
 RUN ["/bin/bash","-c","mv hbase-* /opt/hbase"]
 ADD start_hbase.sh /opt/sei-bin/
@@ -20,7 +20,7 @@ EXPOSE 60010
 EXPOSE 60030
 
 #Install OpenTSDB and scripts
-RUN git clone -b next --single-branch git://github.com/OpenTSDB/opentsdb.git /opt/opentsdb
+RUN git clone -b master --single-branch git://github.com/OpenTSDB/opentsdb.git /opt/opentsdb
 
 RUN cd /opt/opentsdb && bash ./build.sh
 ADD start_opentsdb.sh /opt/sei-bin/
@@ -44,8 +44,12 @@ RUN chmod 0744 /var/run/sshd
 ADD create_ssh_key.sh /opt/sei-bin/
 
 #nginx
-add	./nginx.conf /etc/nginx/nginx.conf
+ADD	./nginx.conf /etc/nginx/nginx.conf
 
+RUN mkdir -p /etc/opentsdb
+ADD	./opentsdb.conf /etc/opentsdb/opentsdb.conf
+
+VOLUME ["/data/hbase"]
 
 CMD ["/usr/bin/supervisord"]
 
